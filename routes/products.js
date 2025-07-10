@@ -3,8 +3,8 @@ const router = express.Router();
 const Product = require('../models/Product');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// ✅ GET all products (Protected)
-router.get('/', authMiddleware, async (req, res) => {
+// ✅ GET all products — 🔓 Now public
+router.get('/', async (req, res) => {
   try {
     const products = await Product.find();
     res.json(products);
@@ -13,8 +13,8 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ GET a product by ID (Optional: keep public or protect)
-router.get('/:id', authMiddleware, async (req, res) => {
+// ✅ GET a product by ID — 🔓 Also public
+router.get('/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ error: 'Product not found' });
@@ -24,7 +24,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ POST a new product (Protected)
+// ✅ POST a new product — 🔐 Still protected
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const { name, price, description, category } = req.body;
@@ -42,8 +42,3 @@ router.post('/', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
-
-
-
-
-
