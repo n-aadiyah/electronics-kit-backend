@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 
 const express = require('express');
@@ -17,8 +16,11 @@ const orderRoutes = require('./routes/orders');
 const app = express();
 
 // Middleware
-app.use(cors());
-app.use(express.json()); // ✅ parse JSON request bodies
+app.use(cors({
+  origin: 'http://localhost:3000', // React frontend origin
+  credentials: true
+}));
+app.use(express.json()); // ✅ Parse JSON request bodies
 
 // Health check route
 app.get('/', (req, res) => {
@@ -28,10 +30,18 @@ app.get('/', (req, res) => {
 // API Routes
 app.use('/api/products', productRoutes); 
 app.use('/api/auth', authRoutes);
-app.use('/api/orders', orderRoutes);// ✅ routes like GET /api/products
-console.log('typeof productRoutes:', typeof productRoutes);
-console.log('typeof authRoutes:', typeof authRoutes);
+app.use('/api/orders', orderRoutes); // ✅ e.g. GET /api/products
 
+// Fallback for undefined routes
+app.use((req, res, next) => {
+  res.status(404).json({ message: '🔍 Route not found' });
+});
+
+// Error handler middleware
+app.use((err, req, res, next) => {
+  console.error('❌ Server error:', err.message);
+  res.status(500).json({ message: '❌ Internal Server Error' });
+});
 
 // Server start
 const PORT = process.env.PORT || 5000;
