@@ -5,6 +5,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 // ✅ GET all products — 🔓 Now public
 router.get('/', async (req, res) => {
+  console.log("📦 GET /api/products called");
   try {
     const products = await Product.find();
     res.json(products);
@@ -40,5 +41,6 @@ router.post('/', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Failed to add product' });
   }
 });
-
 module.exports = router;
+
+
