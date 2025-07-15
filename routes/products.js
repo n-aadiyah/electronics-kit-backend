@@ -11,7 +11,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 //     return res.status(403).json({ error: "Access denied. Admins only." });
 //   }
 // };
-t
+
 // ✅ GET all products — 🔓 Public
 router.get('/', async (req, res) => {
   console.log("📦 GET /api/products called");
