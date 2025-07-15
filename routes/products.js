@@ -3,14 +3,7 @@ const router = express.Router();
 const Product = require('../models/Product');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// ✅ Admin check middleware
-// const isAdmin = (req, res, next) => {
-//   if (req.user?.isAdmin) {
-//     next(); // Allow admin
-//   } else {
-//     return res.status(403).json({ error: "Access denied. Admins only." });
-//   }
-// };
+
 
 // ✅ GET all products — 🔓 Public
 router.get('/', async (req, res) => {
@@ -35,7 +28,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // ✅ POST a new product — 🔐 Only Admin
-router.post('/', authMiddleware, isAdmin, async (req, res) => {
+router.post('/', authMiddleware,  async (req, res) => {
   try {
     const { name, price, description, category } = req.body;
 
