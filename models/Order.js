@@ -24,6 +24,14 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  shippingInfo: {
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    address: { type: String, required: true },
+    city: { type: String, required: true },
+    postalCode: { type: String, required: true },
+    phone: { type: String, required: true }
+  },
   orderedAt: {
     type: Date,
     default: Date.now
