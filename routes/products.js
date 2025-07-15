@@ -3,7 +3,16 @@ const router = express.Router();
 const Product = require('../models/Product');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// ✅ GET all products — 🔓 Now public
+// ✅ Admin check middleware
+// const isAdmin = (req, res, next) => {
+//   if (req.user?.isAdmin) {
+//     next(); // Allow admin
+//   } else {
+//     return res.status(403).json({ error: "Access denied. Admins only." });
+//   }
+// };
+t
+// ✅ GET all products — 🔓 Public
 router.get('/', async (req, res) => {
   console.log("📦 GET /api/products called");
   try {
@@ -14,7 +23,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ GET a product by ID — 🔓 Also public
+// ✅ GET product by ID — 🔓 Public
 router.get('/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -25,8 +34,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ✅ POST a new product — 🔐 Still protected
-router.post('/', authMiddleware, async (req, res) => {
+// ✅ POST a new product — 🔐 Only Admin
+router.post('/', authMiddleware, isAdmin, async (req, res) => {
   try {
     const { name, price, description, category } = req.body;
 
@@ -38,9 +47,9 @@ router.post('/', authMiddleware, async (req, res) => {
     await product.save();
     res.status(201).json(product);
   } catch (err) {
+    console.error("Product POST error:", err);
     res.status(500).json({ error: 'Failed to add product' });
   }
 });
+
 module.exports = router;
-
-
