@@ -20,12 +20,10 @@ const orderRoutes = require('./routes/orders');
 
 const app = express();
 
-// ✅ CORS Middleware (Updated with GitHub Pages origin)
 app.use(cors({
   origin: [
-    "https://electronics-kit-store1.netlify.app",
-    "https://www.electronics-kit-store1.netlify.app",
-    "https://n-aadiyah.github.io"  // ✅ Added GitHub Pages domain
+    "http://localhost:3000", 
+      "https://electronic-kit.netlify.app" // ✅ Add this line for local frontend
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
