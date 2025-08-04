@@ -2,7 +2,7 @@ const path = require('path');
 console.log("📂 Current working directory:", process.cwd());
 
 // ✅ Load environment variables using absolute path
-require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+require('dotenv').config(); 
 console.log("🔐 JWT_SECRET:", process.env.JWT_SECRET);
 
 const express = require('express');
@@ -58,6 +58,6 @@ app.use((err, req, res, next) => {
 
 // ✅ Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
-});
+app.listen(PORT, () => 
+  console.log(`✅ Server running at  port ${PORT}`));
+

@@ -13,7 +13,8 @@ console.log('🔐 Loaded JWT_SECRET:', process.env.JWT_SECRET);
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    console.log("➡️ Received Register:", { username, email, password });
+    console.log("➡️ Received Register:", { username, email });
+
     // Validation
     if (!username || !email || !password) {
       return res.status(400).json({ error: 'All fields are required' });
@@ -32,12 +33,23 @@ router.post('/register', async (req, res) => {
     // Save new user
     const newUser = new User({ username, email, password: hashedPassword });
     await newUser.save();
-    console.log("✅ User saved:", newUser);
+    console.log("✅ User saved to MongoDB:", newUser);
 
-        const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+    // Generate token
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
-    res.status(201).json({ message: 'User registered successfully' });
+
+    // Send response
+    res.status(201).json({
+      message: 'User registered successfully',
+      token,
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email
+      }
+    });
   } catch (err) {
     console.error('❌ Register Error:', err);
     res.status(500).json({ error: err.message || 'Registration failed' });
@@ -60,31 +72,26 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Check password
+    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Check JWT secret
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-      console.error('⚠️ JWT_SECRET is undefined. Check your .env file.');
-      return res.status(500).json({ error: 'JWT secret missing on server' });
-    }
-
+    // Generate token
     const token = jwt.sign(
-  { userId: user._id },
-  process.env.JWT_SECRET,
-  { expiresIn: '1d' }
-);
-    
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    // Send response
     res.json({
       token,
       user: {
         id: user._id,
         username: user.username,
-        email: user.email,
+        email: user.email
       }
     });
   } catch (err) {
@@ -94,6 +101,3 @@ router.post('/login', async (req, res) => {
 });
 
 module.exports = router;
-
-
-
