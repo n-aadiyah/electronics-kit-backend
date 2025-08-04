@@ -3,10 +3,8 @@ const router = express.Router();
 const Product = require('../models/Product');
 const authMiddleware = require('../middleware/authMiddleware');
 
-
-
 // ✅ GET all products — 🔓 Public
-router.get('/', async (req, res) => {
+router.get('/',authMiddleware,  async (req, res) => {
   console.log("📦 GET /api/products called");
   try {
     const products = await Product.find();
@@ -30,13 +28,13 @@ router.get('/:id', async (req, res) => {
 // ✅ POST a new product — 🔐 Only Admin
 router.post('/', authMiddleware,  async (req, res) => {
   try {
-    const { name, price, description, category } = req.body;
+    const { name, price, description, category, image } = req.body;
 
-    if (!name || !price || !description || !category) {
+    if (!name || !price || !description || !category || !image) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
-    const product = new Product({ name, price, description, category });
+    const product = new Product({ name, price, description, category, image });
     await product.save();
     res.status(201).json(product);
   } catch (err) {
