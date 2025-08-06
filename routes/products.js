@@ -4,7 +4,7 @@ const Product = require('../models/Product');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // ✅ GET all products — 🔓 Public
-router.get('/',authMiddleware,  async (req, res) => {
+router.get('/', async (req, res) => {
   console.log("📦 GET /api/products called");
   try {
     const products = await Product.find();

@@ -31,11 +31,13 @@ const orderSchema = new mongoose.Schema({
     city: { type: String, required: true },
     postalCode: { type: String, required: true },
     phone: { type: String, required: true }
+   },
+    orderedAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  orderedAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('Order', orderSchema);
+module.exports = mongoose.model("Order", orderSchema);

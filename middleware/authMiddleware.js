@@ -1,20 +1,18 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
-  console.log("🧪 Raw Authorization Header:", authHeader); // will show null if missing
+  console.log("🧪 Raw Authorization Header:", authHeader);
 
-  // ✅ Handle missing header completely
   if (!authHeader) {
     return res.status(401).json({ error: 'Authorization header missing' });
   }
 
-  // ✅ Now safely split
   const tokenParts = authHeader.split(' ');
 
-  // Must be ["Bearer", "token"]
   if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
     return res.status(401).json({ error: 'Malformed Authorization header' });
   }
@@ -23,7 +21,15 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-req.user = decoded.userId;    next();
+
+    // Optional: Verify that the user exists in the database
+    const user = await User.findById(decoded.id); // Use decoded.id if you signed with { id: user._id }
+    if (!user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    req.user = user; // Attach the full user object if needed
+    next();
   } catch (err) {
     console.error("❌ JWT Verification Failed:", err.message);
     return res.status(401).json({ error: 'Invalid or expired token' });

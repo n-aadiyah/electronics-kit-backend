@@ -1,44 +1,52 @@
-require('dotenv').config(); // Load environment variables
+require('dotenv').config();
 
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const router = express.Router();
+const router = express.Router(); // ✅ simplified usage
 
-// ✅ Debug: Ensure JWT secret is loaded
-console.log('🔐 Loaded JWT_SECRET:', process.env.JWT_SECRET);
+// Debug: Check if secret loaded (only in dev)
+if (process.env.NODE_ENV !== 'production') {
+  console.log('🔐 JWT_SECRET loaded:', process.env.JWT_SECRET);
+}
 
-// ✅ Register route
+// ✅ Register Route
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    console.log("➡️ Received Register:", { username, email });
+    console.log("📥 Register Attempt:", { username, email });
 
-    // Validation
+    // Validate fields
     if (!username || !email || !password) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
-    // Check if user already exists
+    // Check for existing user
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.log("❗ User already exists:", email);
-      return res.status(409).json({ error: 'Email already registered' });
+      return res.status(409).json({ error: 'Email is already registered' });
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save new user
-    const newUser = new User({ username, email, password: hashedPassword });
-    await newUser.save();
-    console.log("✅ User saved to MongoDB:", newUser);
-
-    // Generate token
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
+    // Save user
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword,
     });
+
+    await newUser.save();
+    console.log("✅ New user created:", newUser.email);
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: newUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
 
     // Send response
     res.status(201).json({
@@ -47,40 +55,41 @@ router.post('/register', async (req, res) => {
       user: {
         id: newUser._id,
         username: newUser.username,
-        email: newUser.email
-      }
+        email: newUser.email,
+      },
     });
   } catch (err) {
-    console.error('❌ Register Error:', err);
-    res.status(500).json({ error: err.message || 'Registration failed' });
+    console.error('❌ Registration Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// ✅ Login route
+// ✅ Login Route
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("🔐 Login attempt:", email);
 
-    // Validation
+    // Validate input
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password required' });
+      return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    // Check if user exists
+    // Check user
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Compare password
+    // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Generate token
+    // Generate JWT
     const token = jwt.sign(
-      { userId: user._id },
+      { id: user._id },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
@@ -91,12 +100,12 @@ router.post('/login', async (req, res) => {
       user: {
         id: user._id,
         username: user.username,
-        email: user.email
-      }
+        email: user.email,
+      },
     });
   } catch (err) {
     console.error('❌ Login Error:', err);
-    res.status(500).json({ error: err.message || 'Login failed' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
