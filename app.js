@@ -17,7 +17,8 @@ connectDB();
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders');
-
+const stemkitRoutes = require("./routes/stemkitRoutes");
+const stemkitOrderRoutes = require('./routes/stemkitOrders');
 const app = express();
 
 app.use(cors({
@@ -44,8 +45,9 @@ app.get('/', (req, res) => {
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
+app.use("/api/stemkits", stemkitRoutes);
+app.use('/api/stemkit-orders', stemkitOrderRoutes);
 
-// ✅ Fallback for undefined routes
 app.use((req, res, next) => {
   res.status(404).json({ message: '🔍 Route not found' });
 });

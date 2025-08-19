@@ -9,7 +9,8 @@ const productSchema = new mongoose.Schema({
   description: { type: String, required: true },
   rating: { type: Number, default: 0 },
   reviews: { type: Number, default: 0 },
-  stock: { type: Number, default: 0 }
+  stock: { type: Number, default: 0 },
+   isSubscription: { type: Boolean, default: false },
 }, {
   timestamps: true
 });
